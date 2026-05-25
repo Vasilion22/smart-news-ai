@@ -41,10 +41,9 @@ The source code is organized inside the `src/` directory:
 
 ## 🛠️ Tech Stack
 
-1.  **Python 3.12**
-2.  **CustomTkinter & Tkinter**: Modern and responsive native desktop GUI.
-3.  **Feedparser & BeautifulSoup4**: Feed downloading and HTML content parsing.
-4.  **googlenewsdecoder**: Decodes original URLs from encrypted Google News tracking links.
+1.  **CustomTkinter & Tkinter**: Modern and responsive native desktop GUI.
+2.  **Feedparser & BeautifulSoup4**: Feed downloading and HTML content parsing.
+3.  **googlenewsdecoder**: Decodes original URLs from encrypted Google News tracking links.
 5.  **Ollama**: Local LLM API integration.
 
 ---
