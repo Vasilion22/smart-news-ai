@@ -1,85 +1,87 @@
 # Smart News AI
 
-Smart News AI è un'applicazione desktop nativa per Linux Mint sviluppata in Python. Il suo scopo è raccogliere, analizzare e riassumere in tempo reale notizie su **qualsiasi argomento scelto dall'utente**, dividendole su base continentale (Europa, Nord America, Sud America, Asia, Africa, Oceania) e offrendo riassunti e traduzioni automatiche in lingua italiana. Il tutto avviene **in modo completamente locale e privato**, appoggiandosi a un'istanza locale di Ollama.
+Smart News AI is a native desktop application for Debian-based Linux distributions (such as Ubuntu, Debian, Linux Mint, Pop!_OS, etc.) developed in Python. Its purpose is to gather, analyze, and summarize real-time news about **any custom search topic chosen by the user** through a prompt, dividing results by continent (Europe, North America, South America, Asia, Africa, Oceania) and providing automatic translation and summaries in a selected target language. The entire process runs **completely locally and privately** using a local Ollama instance.
 
-L'applicazione include un sistema di archiviazione temporanea offline e un generatore intelligente di articoli e post per i social media basati sulle notizie selezionate.
-
----
-
-## 📂 Struttura del Progetto
-
-Il codice sorgente è organizzato nella directory `src/`:
-*   **`src/config.py`**: Gestisce la lettura e la scrittura delle preferenze dell'utente in `~/.config/ai-news-summarizer/config.json`. Salva il modello selezionato, l'URL del server Ollama, l'arco temporale di ricerca, i continenti abilitati, l'ultimo argomento cercato (`last_search_topic`) e il limite massimo di notizie.
-*   **`src/archive.py`**: Gestisce il salvataggio persistente locale delle notizie appuntate dall'utente in `~/.config/ai-news-summarizer/archive.json`. Include una logica di auto-pulizia per rimuovere automaticamente le notizie salvate da più di 7 giorni.
-*   **`src/news_fetcher.py`**: Si occupa di interrogare i feed RSS di Google News per i vari continenti. Traduce dinamicamente il termine di ricerca inserito dall'utente nella lingua del feed continentale, decodifica i link tracciati di Google RSS e scarica lo snippet o la descrizione della pagina di destinazione usando BeautifulSoup4. Implementa inoltre la rimozione dei duplicati e l'ordinamento cronologico.
-*   **`src/ollama_client.py`**: Gestisce l'interazione asincrona con l'API locale di Ollama (`http://localhost:11434`). Gestisce la traduzione dei termini di ricerca, la sintesi degli articoli basandosi sul tema specificato e la generazione strutturata di post per i social media (con supporto ai tag `<thinking>` dei modelli di ragionamento tipo Qwen 2.5/3.5 o DeepSeek R1).
-*   **`src/main.py`**: Punto di ingresso grafico dell'applicazione, realizzato con `customtkinter`. Implementa il layout a schede (Notizie Recenti, Notizie Salvate, Generatore Post), la barra di ricerca in alto, la griglia a due colonne dei continenti e la gestione dei thread in background per mantenere fluida l'interfaccia.
-*   **`build_deb.sh`**: Script Bash automatizzato per compilare il codice con `PyInstaller` e generare il pacchetto di installazione nativo `smart-news-ai.deb` per Debian/Linux Mint.
+The application includes an offline local archiving system and an intelligent post generator for social media based on the selected news.
 
 ---
 
-## ✨ Funzionalità Chiave
+## 📂 Project Structure
 
-1.  **Ricerca Libera per Argomento**:
-    L'utente può digitare qualsiasi argomento nella barra di ricerca principale (es. "Energie rinnovabili", "Esplorazione Spaziale", "Robotica"). L'applicazione traduce automaticamente l'argomento per i feed in lingua straniera prima di effettuare la ricerca.
-2.  **Suddivisione per Continente**:
-    I feed sono raggruppati in 6 continenti: Europa, Nord America, Sud America, Asia, Africa e Oceania. Questo permette all'utente di selezionare aree geografiche specifiche per le sue ricerche.
-3.  **Archiviazione Locale (📌)**:
-    Ogni card presenta un pulsante `📌 Salva` per inserire la notizia in un archivio locale permanente per un massimo di 7 giorni. Gli elementi scaduti vengono ripuliti in automatico. È possibile consultare l'archivio nella scheda **Notizie Salvate**.
-4.  **Generatore di Post Social**:
-    Selezionando una o più notizie tramite la checkbox `Seleziona per Post`, l'utente le aggiunge come fonti del generatore. Nella scheda **Generatore Post**, è possibile configurare:
-    *   **Piattaforma**: LinkedIn, X / Twitter, Facebook, Blog / Articolo.
-    *   **Tono di voce**: Professionale, Informativo, Coinvolgente, Tecnico.
-    *   **Lunghezza**: Breve, Medio, Dettagliato.
-    *   **Opzioni aggiuntive**: Abilitare/disabilitare l'uso di Emoji e Hashtag.
+The source code is organized inside the `src/` directory:
+*   **`src/config.py`**: Manages reading and writing user preferences in `~/.config/ai-news-summarizer/config.json`. Saves the selected LLM, local Ollama server URL, search time range, enabled continents, last searched topic (`last_search_topic`), max news count, and the translation target language (`translation_lang`).
+*   **`src/archive.py`**: Manages persistent local saving of pinned articles in `~/.config/ai-news-summarizer/archive.json`. Includes automatic cleanup to remove articles older than 7 days.
+*   **`src/news_fetcher.py`**: Queries Google News RSS feeds for different continents. It dynamically translates the user's search topic into the feed's target language, decodes the tracked Google RSS links, and extracts page snippets/descriptions using BeautifulSoup4. Includes de-duplication and chronological sorting.
+*   **`src/ollama_client.py`**: Manages asynchronous communication with the local Ollama API (`http://localhost:11434`). Handles search term translation, article summarization/translation into the selected target language, and structured social media post generation (supporting `<thinking>` reasoning blocks from models like Qwen 2.5/3.5 or DeepSeek R1).
+*   **`src/main.py`**: Graphical entry point built with `customtkinter`. Implements the tabbed layout (Recent News, Saved News, Post Generator), the top search bar, the output language selector, the continental feeds checklist, and background threading to prevent UI freezing.
+*   **`build_deb.sh`**: Automated Bash script to compile the executable using `PyInstaller` and build the native `.deb` package (`smart-news-ai.deb`) for Debian-based Linux systems.
+
+---
+
+## ✨ Key Features
+
+1.  **Custom Topic Search**:
+    Users can type any custom topic in the search entry (e.g. "Renewable Energy", "Space Exploration", "Robotics"). The application automatically translates the search topic for foreign feeds before querying Google News.
+2.  **Output Language Selection**:
+    Choose the translation/summarization target language directly from the main header before starting the search. Supported languages: Italian, English, Chinese, Japanese, Spanish, French, German, Russian, and Arabic.
+3.  **Continental Feeds Grid**:
+    Feeds are grouped into 6 continents (Europe, North America, South America, Asia, Africa, Oceania) so users can select specific geographic regions for searches.
+4.  **Local Offline Archiving (📌)**:
+    Each news card has a `📌 Salva` (Save) button to store the article in a local archive for up to 7 days. Expired articles are automatically cleaned up. Saved articles can be reviewed under the **Notizie Salvate** (Saved News) tab.
+5.  **Social Media Post Generator**:
+    Check `Seleziona per Post` (Select for Post) on one or more news items to add them as sources. In the **Generatore Post** (Post Generator) tab, configure:
+    *   **Platform**: LinkedIn, X / Twitter, Facebook, Blog / Article.
+    *   **Tone of Voice**: Professional, Informative, Engaging, Technical.
+    *   **Length**: Short, Medium, Detailed.
+    *   **Additional settings**: Enable/disable Emoji and Hashtags.
     
-    Il post viene redatto in italiano da Ollama in modo asincrono, rimanendo fedele al tema di ricerca originario.
+    The post is generated by Ollama in the chosen output language.
 
 ---
 
-## 🛠️ Tecnologie Utilizzate
+## 🛠️ Tech Stack
 
 1.  **Python 3.12**
-2.  **CustomTkinter & Tkinter**: Per la GUI moderna e reattiva con caricamento nativo delle immagini PNG.
-3.  **Feedparser & BeautifulSoup4**: Per il download e l'estrazione intelligente del testo dei siti di notizie.
-4.  **googlenewsdecoder**: Fondamentale per risalire all'URL originale partendo dall'RSS cifrato di Google.
-5.  **Ollama**: Integrazione locale con modelli LLM tramite API.
+2.  **CustomTkinter & Tkinter**: Modern and responsive native desktop GUI.
+3.  **Feedparser & BeautifulSoup4**: Feed downloading and HTML content parsing.
+4.  **googlenewsdecoder**: Decodes original URLs from encrypted Google News tracking links.
+5.  **Ollama**: Local LLM API integration.
 
 ---
 
-## 🚀 Installazione e Avvio
+## 🚀 Installation & Execution
 
-### Pacchetto pre-compilato (.deb)
-Se hai già generato il pacchetto, puoi installarlo direttamente con:
+### Pre-compiled Package (.deb)
+If you have built the package, install it directly using:
 ```bash
 sudo dpkg -i smart-news-ai.deb
 ```
-L'applicazione verrà aggiunta al menu di sistema di Linux Mint con la sua icona personalizzata in `/usr/share/pixmaps/smart-news-ai.png` e descrizione "Aggregatore di notizie e creatore di post".
+The application will be added to your system's application menu (Utility/News category) with its custom icon in `/usr/share/pixmaps/smart-news-ai.png` and description "Aggregatore di notizie e creatore di post".
 
-### Esecuzione da sorgente (Sviluppo)
-1.  Crea l'ambiente virtuale e installa le dipendenze:
+### Running from Source (Development)
+1.  Create a virtual environment and install dependencies:
      ```bash
      python3 -m venv venv
      source venv/bin/activate
      pip install -r requirements.txt
      ```
-2.  Avvia l'applicazione:
+2.  Launch the application:
      ```bash
      python3 src/main.py
      ```
 
 ---
 
-## 🔍 Criteri di Ricerca e Lingue
-L'applicazione supporta la ricerca multilingua combinata e de-duplicata su 6 continenti, traducendo dinamicamente l'argomento cercato nelle seguenti lingue di destinazione dei feed:
-*   **Inglese (EN)**: Usato nei feed di Nord America, Africa (Sudafrica), Oceania ed Europa (UK).
-*   **Cinese (ZH)**: Usato nel feed dell'Asia (Cina/Taiwan).
-*   **Giapponese (JA)**: Usato nel feed dell'Asia (Giappone).
-*   **Spagnolo (ES)**: Usato nei feed di Sud America ed Europa (Spagna).
-*   **Francese (FR)**: Usato nel feed dell'Europa (Francia).
-*   **Tedesco (DE)**: Usato nel feed dell'Europa (Germania).
-*   **Russo (RU)**: Usato nei feed eurasiatici di Europa e Asia (Russia).
-*   **Arabo (AR)**: Usato nel feed dell'Africa (Egitto/Nord Africa).
-*   **Italiano (IT)**: Usato nel feed dell'Europa (Italia).
+## 🔍 Search Criteria & Feed Languages
+The application supports multi-source, de-duplicated searching across 6 continents, dynamically translating the query term into target feed languages:
+*   **English (EN)**: Used in feeds for North America, Africa (South Africa), Oceania, and Europe (UK).
+*   **Chinese (ZH)**: Used in the Asia feed (China/Taiwan).
+*   **Japanese (JA)**: Used in the Asia feed (Japan).
+*   **Spanish (ES)**: Used in South America and Europe (Spain) feeds.
+*   **French (FR)**: Used in the Europe (France) feed.
+*   **German (DE)**: Used in the Europe (Germany) feed.
+*   **Russian (RU)**: Used in Eurasian feeds for Europe and Asia (Russia).
+*   **Arabic (AR)**: Used in the Africa feed (Egypt/North Africa).
+*   **Italian (IT)**: Used in the Europe (Italy) feed.
 
-All'avvio, l'applicazione interroga Ollama per scoprire quali modelli sono installati localmente sulla GPU/CPU e li presenta in un menu a tendina.
+On startup, the application queries local Ollama models and presents them in the settings dropdown.

@@ -95,21 +95,36 @@ Rispondi con la sola traduzione finale, senza virgolette, senza spiegazioni e se
     
     return query
 
-def summarize_news(title, text_content, model, topic="Intelligenza Artificiale", server_url="http://localhost:11434"):
+def get_prompt_lang_name(autonym):
+    mapping = {
+        "English": "english",
+        "Italiano": "italiano",
+        "Deutsch": "deutsch",
+        "Français": "français",
+        "Español": "español",
+        "中文": "cinese",
+        "日本語": "giapponese",
+        "Русский": "russo",
+        "العربية": "arabo"
+    }
+    return mapping.get(autonym, autonym.lower())
+
+def summarize_news(title, text_content, model, topic="Intelligenza Artificiale", target_lang="English", server_url="http://localhost:11434"):
     """
     Uses the selected local Ollama model to translate the title and summarize
-    the content in Italian.
+    the content in the specified target language.
     Returns a dictionary: {"titolo_italiano": ..., "riassunto_italiano": ...}
     """
-    prompt = f"""Sei un assistente AI esperto in notizie sul tema "{topic}". Il tuo compito è tradurre in italiano il titolo e riassumere il contenuto della seguente notizia riguardante "{topic}".
+    lang_name = get_prompt_lang_name(target_lang)
+    prompt = f"""Sei un assistente AI esperto in notizie sul tema "{topic}". Il tuo compito è tradurre in {lang_name} il titolo e riassumere il contenuto della seguente notizia riguardante "{topic}".
 
 Titolo originale: {title}
 Contenuto della notizia: {text_content}
 
 Rispondi ESCLUSIVAMENTE in formato JSON con questa esatta struttura:
 {{
-  "titolo_italiano": "Traduzione del titolo in italiano",
-  "riassunto_italiano": "Un riassunto conciso in italiano di 2-3 frasi chiare e scorrevoli che descriva la notizia."
+  "titolo_tradotto": "Traduzione del titolo in {lang_name}",
+  "riassunto_tradotto": "Un riassunto conciso in {lang_name} di 2-3 frasi chiare e scorrevoli che descriva la notizia."
 }}
 """
 
@@ -151,8 +166,16 @@ Rispondi ESCLUSIVAMENTE in formato JSON con questa esatta struttura:
 
             parsed = extract_json(response_text) or extract_json(thinking_text)
             
-            if parsed and "titolo_italiano" in parsed and "riassunto_italiano" in parsed:
-                return parsed
+            if parsed:
+                # Support both new "titolo_tradotto" / "riassunto_tradotto" and old "titolo_italiano" / "riassunto_italiano"
+                t_key = "titolo_tradotto" if "titolo_tradotto" in parsed else "titolo_italiano"
+                r_key = "riassunto_tradotto" if "riassunto_tradotto" in parsed else "riassunto_italiano"
+                
+                if t_key in parsed and r_key in parsed:
+                    return {
+                        "titolo_italiano": parsed[t_key],
+                        "riassunto_italiano": parsed[r_key]
+                    }
             
             # Fallback if JSON format was not followed or parsing failed
             # Try a simple text fallback
@@ -172,7 +195,7 @@ Rispondi ESCLUSIVAMENTE in formato JSON con questa esatta struttura:
             "riassunto_italiano": f"Errore di connessione a Ollama: {str(e)}"
         }
 
-def generate_social_post(news_items, platform, tone, length, include_hashtags, include_emojis, model, topic="Intelligenza Artificiale", server_url="http://localhost:11434"):
+def generate_social_post(news_items, platform, tone, length, include_hashtags, include_emojis, model, topic="Intelligenza Artificiale", target_lang="English", server_url="http://localhost:11434"):
     """
     Generates a social media post based on a list of selected news items.
     """
@@ -188,7 +211,9 @@ def generate_social_post(news_items, platform, tone, length, include_hashtags, i
         "Dettagliato": "più lungo e approfondito (adatto per un articolo o newsletter)"
     }.get(length, "di media lunghezza")
     
-    prompt = f"""Sei un Social Media Manager professionista ed esperto del settore. Il tuo compito è creare un post/articolo professionale in italiano da pubblicare sui social network, basandoti sulle seguenti notizie recenti sul tema "{topic}":
+    lang_name = get_prompt_lang_name(target_lang)
+    
+    prompt = f"""Sei un Social Media Manager professionista ed esperto del settore. Il tuo compito è creare un post/articolo professionale in {lang_name} da pubblicare sui social network, basandoti sulle seguenti notizie recenti sul tema "{topic}":
 
 {news_details}
 
@@ -198,12 +223,12 @@ Caratteristiche del post da generare:
 - Lunghezza del testo: {length_desc}
 - Uso di Emojis: {'Abilitato (inserisci emoji pertinenti per rendere il testo attraente e leggibile)' if include_emojis else 'Disabilitato (non usare alcuna emoji)'}
 - Hashtag: {'Abilitati (aggiungi hashtag pertinenti a fine post)' if include_hashtags else 'Disabilitati (non aggiungere alcun hashtag)'}
-- Lingua: Italiano
+- Lingua: {lang_name}
 
 Linee guida per la scrittura:
-1. Crea un'introduzione accattivante sul tema "{topic}" basandoti sulle notizie fornite.
-2. Combina o elenca le notizie in modo fluido ed organico, evidenziando i punti chiave e le implicazioni principali.
-3. Concludi con una domanda aperta o una chiamata all'azione (CTA) per stimolare l'interazione dei follower.
+1. Crea un'introduzione accattivante sul tema "{topic}" basandoti sulle notizie fornite. Scrivi l'introduzione nella lingua selezionata ({lang_name}).
+2. Combina o elenca le notizie in modo fluido ed organico, evidenziando i punti chiave e le implicazioni principali. Il tutto nella lingua selezionata ({lang_name}).
+3. Concludi con una domanda aperta o una chiamata all'azione (CTA) per stimolare l'interazione dei follower nella lingua selezionata ({lang_name}).
 4. Non inventare dettagli non presenti nei riassunti delle notizie fornite.
 5. Rispondi ESCLUSIVAMENTE con il testo finale del post, pronto per essere pubblicato (senza messaggi introduttivi tipo "Ecco il post generato:").
 

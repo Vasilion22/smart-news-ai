@@ -11,7 +11,8 @@ DEFAULT_CONFIG = {
     "theme": "Dark",
     "feeds": ["europe", "north_america"],  # Lista di feed geografici abilitati
     "max_news_count": 15,  # Numero massimo di notizie da mostrare
-    "last_search_topic": "Intelligenza Artificiale"
+    "last_search_topic": "Intelligenza Artificiale",
+    "translation_lang": "English"
 }
 
 def get_config_path():
