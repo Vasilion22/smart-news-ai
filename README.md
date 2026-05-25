@@ -1,6 +1,6 @@
 # Smart News AI
 
-Smart News AI is a native desktop application for Debian-based Linux distributions (such as Ubuntu, Debian, Linux Mint, Pop!_OS, etc.) developed in Python. Its purpose is to gather, analyze, and summarize real-time news about **any custom search topic chosen by the user** through a prompt, dividing results by continent (Europe, North America, South America, Asia, Africa, Oceania) and providing automatic translation and summaries in a selected target language. The entire process runs **completely locally and privately** using a local Ollama instance.
+Smart News AI is a native desktop application for Debian-based Linux distributions (such as Ubuntu, Debian, Linux Mint, Pop!_OS, etc.) developed in Python. Its purpose is to gather, analyze, and summarize real-time news about **any custom search topic chosen by the user** through a prompt, dividing results by continent (Europe, North America, South America, Asia, Africa, Oceania) and providing automatic translation and summaries in a selected target language. The entire process runs **locally or via Ollama Cloud, in complete privacy**, using a local or remote Ollama instance.
 
 The application includes an offline local archiving system and an intelligent post generator for social media based on the selected news.
 
@@ -46,6 +46,14 @@ The source code is organized inside the `src/` directory:
 3.  **Feedparser & BeautifulSoup4**: Feed downloading and HTML content parsing.
 4.  **googlenewsdecoder**: Decodes original URLs from encrypted Google News tracking links.
 5.  **Ollama**: Local LLM API integration.
+
+---
+
+## ⚙️ System Requirements
+
+*   **Ollama Cloud (free tier)**: No special hardware required, just an internet connection. Perfect for users who want to try the app without a dedicated GPU. Ollama offers a free cloud tier with usage limits that are not exceeded with normal use of this application.
+*   **Local - basic quality**: A GPU with at least 6-8GB of VRAM is recommended for a satisfying experience with small models.
+*   **Local - high quality**: A GPU with 12GB+ of VRAM delivers the best results for post generation and multilingual translations.
 
 ---
 
