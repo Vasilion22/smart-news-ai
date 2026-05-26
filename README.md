@@ -18,6 +18,14 @@ The source code is organized inside the `src/` directory:
 
 ---
 
+## 📸 Screenshots
+
+![News Search](screenshots/SNA_search.png)
+![Saved Archive](screenshots/SNA_archive.png)
+![Post Generator](screenshots/SNA_post.png)
+
+---
+
 ## ✨ Key Features
 
 1.  **Custom Topic Search**:
